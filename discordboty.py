@@ -107,7 +107,7 @@ async def stock_info(interaction: discord.Interaction, stock: str):
     fig = go.Figure(data=[go.Candlestick(x=data.index, open=data['Open'], close=data['Close'], high=data['High'], low=data['Low'])])
     fig.write_image(f"graphs/{interaction.user.name}-{stock}.png")
     file = discord.File(f"graphs/{interaction.user.name}-{stock}.png", filename="image.png")
-    
+    embed.set_image(url="attachment://image.png")
     
     embed.add_field(name='temp', value='body')
 
