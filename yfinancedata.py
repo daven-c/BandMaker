@@ -15,3 +15,6 @@ data = info.history(period='1y', interval='1d')
 fig = go.Figure(data=[go.Candlestick(x=data.index, open=data['Open'], close=data['Close'], high=data['High'], low=data['Low'])])
 
 fig.show()
+
+# Save the figure as a PNG file
+fig.write_image("candlestick_chart.png")

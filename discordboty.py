@@ -4,6 +4,8 @@ from datetime import datetime
 from discord import app_commands
 from discord.ext import commands
 from typing import Optional, List, Tuple, Dict
+import yfinance as yf
+import plotly.graph_objects as go
 
 
 # BOT Settings
@@ -27,11 +29,11 @@ async def sendLogs(content: str, command_name: str = None):
         now = datetime.now()
         current_time = now.strftime('%H:%M')
         if command_name is not None:
-            output = f'```{command_name} - {current_time}\n{content}```'
+            output = f'{command_name} - {current_time}\n{content}'
         else:
-            output = f'```{content} - {current_time}```'
+            output = f'{content} - {current_time}'
         print(output)
-        await log_channel.send(output)
+        await log_channel.send(f"```{output}```")
 
 
 @client.event
@@ -93,6 +95,24 @@ async def remove_stock(interaction: discord.Interaction, stock: str):
     cur.execute('''DELETE FROM stocks WHERE stockID = (?)''', (stock,))
     con.commit()
     await interaction.response.send_message(stock + " has been removed from the watch list")
+    
+@tree.command(name='stock-info', description='Show information about a stock')
+async def stock_info(interaction: discord.Interaction, stock: str):
+    embed = discord.Embed(title=f'{stock}', colour=discord.Colour.red())
+    
+    embed.add_field(name='temp', value='body')
+    
+    info = yf.Ticker(stock)
+    data = info.history(period='1y', interval='1d')
+    fig = go.Figure(data=[go.Candlestick(x=data.index, open=data['Open'], close=data['Close'], high=data['High'], low=data['Low'])])
+    fig.write_image(f"graphs/{interaction.user.name}-{stock}.png")
+    file = discord.File(f"graphs/{interaction.user.name}-{stock}.png", filename="image.png")
+    
+    
+    embed.add_field(name='temp', value='body')
+
+    
+    await interaction.response.send_message(embed=embed, file=file)
 
         
 client.run(TOKEN)
