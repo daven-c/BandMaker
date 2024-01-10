@@ -1,11 +1,12 @@
 import discord
-import sqlite3
 from datetime import datetime
 from discord import app_commands
 from discord.ext import commands
+import sqlite3
 from typing import Optional, List, Tuple, Dict
 import yfinance as yf
 import plotly.graph_objects as go
+import os
 
 
 # BOT Settings
@@ -113,6 +114,7 @@ async def stock_info(interaction: discord.Interaction, stock: str):
 
     
     await interaction.response.send_message(embed=embed, file=file)
+    os.remove(f"graphs/{interaction.user.name}-{stock}.png")
 
         
 client.run(TOKEN)
