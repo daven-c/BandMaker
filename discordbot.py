@@ -3,6 +3,7 @@ from datetime import datetime
 from discord import app_commands
 from discord.ext import commands
 import sqlite3
+import asyncio
 from typing import Optional, List, Tuple, Dict
 import yfinance as yf
 import plotly.graph_objects as go
@@ -49,7 +50,8 @@ async def on_ready():
     ''')
     con.commit() #use commit to save changes
     await tree.sync()
-    await sendLogs('client ready')
+    await alert_user()
+    #await sendLogs('client ready')
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f'for help'))
 
 
@@ -116,5 +118,15 @@ async def stock_info(interaction: discord.Interaction, stock: str):
     await interaction.response.send_message(embed=embed, file=file)
     os.remove(f"graphs/{interaction.user.name}-{stock}.png")
 
-        
+async def alert_user():
+    while True:
+        #implement stock pattern recognition 
+        embed = discord.Embed(title=f'Pattern Detected', colour=discord.Colour.red())
+        embed.add_field(name='STOCK_NAME', inline=False, value='pattern name')
+        embed.add_field(name='BEARISH/BULLISH', value='CONFIDENCE_PERCENTAGE')
+        await asyncio.sleep(10)
+        channel = client.get_channel(1194389374532603914)
+        await channel.send(embed=embed)
+
+
 client.run(TOKEN)
