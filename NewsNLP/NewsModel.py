@@ -10,9 +10,6 @@ import replicate
 
 os.environ["REPLICATE_API_TOKEN"] = "r8_"
 
-
-import replicate
-
 # Prompts
 pre_prompt = "You are a helpful assistant. You do not respond as 'User' or pretend to be 'User'. You only respond once as 'Assistant'."
 prompt_input = "Name the days of the week in order"
