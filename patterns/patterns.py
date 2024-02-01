@@ -69,6 +69,7 @@ class MomentumCandle(PatternMatcher):
         return data
     
     
+class ShootingStar(PatternMatcher)
 if __name__ == '__main__':
     # Class testing
     symbol = 'AAPL'

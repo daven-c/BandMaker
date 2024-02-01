@@ -2,6 +2,7 @@
 
 ## Setup
 
-1. Use python -m venv venv in terminal
-2. Use pip install -r requirements.txt
-3. Use .\venv\Scripts\activate
+1. Run in powershell administrator mode: Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser
+2. Use python -m venv venv in terminal
+3. Use pip install -r requirements.txt
+4. Use .\venv\Scripts\activate
