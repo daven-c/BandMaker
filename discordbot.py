@@ -43,14 +43,14 @@ async def on_ready():
     print('We have logged in as {0.user}'.format(client))
     cur.execute('''
     CREATE TABLE IF NOT EXISTS stocks(
-        stockID text,
+        stockID text UNIQUE,
         support text,
         resistance text
         )
     ''')
     con.commit() #use commit to save changes
     await tree.sync()
-    await alert_user()
+    #await alert_user()
     #await sendLogs('client ready')
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f'for help'))
 
@@ -75,12 +75,23 @@ async def echo(interaction: discord.Interaction, msg: str):
     
 @tree.command(name="track-stock", description="Adds stock to the watchlist")
 async def add_stock(interaction: discord.Interaction, stock: str):
-    cur.execute('''
-        INSERT INTO stocks (stockID, support, resistance)
-            VALUES (?,?,?)
-    ''', [str(stock),'0','0']) #use second parameter to input python variables, must be in tuple form
-    con.commit()
-    await interaction.response.send_message("I am now tracking " + stock)
+    try:#check if the stock name provided by user is valid
+        stock_data = yf.Ticker(str(stock))
+        info = stock_data.info
+    except Exception as e: #tell user that the stock name is not valid
+        await interaction.response.send_message("Error: The stock name you entered is not valid " + stock)
+        return
+    
+    try:#check if we are already tracking the stock 
+        stock = stock.upper()#make all stock names uppercase only
+        cur.execute('''
+            INSERT INTO stocks (stockID, support, resistance)
+                VALUES (?,?,?)
+        ''', [str(stock),'0','0']) #use second parameter to input python variables, must be in tuple form
+        con.commit()
+        await interaction.response.send_message("I am now tracking " + stock)
+    except Exception as e:
+        await interaction.response.send_message("Error: You are already tracking " + stock)
     
 @tree.command(name="show-stocks", description="Show the stocks currently on the watchlist")
 async def show_list(interaction: discord.Interaction):
@@ -95,9 +106,13 @@ async def show_list(interaction: discord.Interaction):
         
 @tree.command(name="remove-stock", description="Removes the given stock from the watchlist")
 async def remove_stock(interaction: discord.Interaction, stock: str):
-    cur.execute('''DELETE FROM stocks WHERE stockID = (?)''', (stock,))
-    con.commit()
-    await interaction.response.send_message(stock + " has been removed from the watch list")
+    try:
+        stock = stock.upper()
+        cur.execute('''DELETE FROM stocks WHERE stockID = (?)''', (stock,))
+        con.commit()
+        await interaction.response.send_message(stock + " has been removed from the watch list")
+    except Exception as e:
+        await interaction.response.send_message("Error" + stock + " is not on the watch list")
     
 @tree.command(name='stock-info', description='Show information about a stock')
 async def stock_info(interaction: discord.Interaction, stock: str):
@@ -118,15 +133,15 @@ async def stock_info(interaction: discord.Interaction, stock: str):
     await interaction.response.send_message(embed=embed, file=file)
     os.remove(f"graphs/{interaction.user.name}-{stock}.png")
 
-async def alert_user():
-    while True:
-        #implement stock pattern recognition 
-        embed = discord.Embed(title=f'Pattern Detected', colour=discord.Colour.red())
-        embed.add_field(name='STOCK_NAME', inline=False, value='pattern name')
-        embed.add_field(name='BEARISH/BULLISH', value='CONFIDENCE_PERCENTAGE')
-        await asyncio.sleep(10)
-        channel = client.get_channel(1194389374532603914)
-        await channel.send(embed=embed)
+# async def alert_user():
+#     while True:
+#         #implement stock pattern recognition 
+#         embed = discord.Embed(title=f'Pattern Detected', colour=discord.Colour.red())
+#         embed.add_field(name='STOCK_NAME', inline=False, value='pattern name')
+#         embed.add_field(name='BEARISH/BULLISH', value='CONFIDENCE_PERCENTAGE')
+#         await asyncio.sleep(10)
+#         channel = client.get_channel(1194389374532603914)
+#         await channel.send(embed=embed)
 
 
 client.run(TOKEN)
