@@ -73,6 +73,7 @@ class MomentumCandle(PatternMatcher):
 
 class ShootingStar(PatternMatcher):
     CANDLES_REQUIRED = 1
+
     def __init__(self, max_body_length: float = 0.2, threshold: float = 0.4):
         """
         Args: 
@@ -98,7 +99,7 @@ class ShootingStar(PatternMatcher):
 
 class Tweezer(PatternMatcher):
     CANDLES_REQUIRED = 2
-    
+
     def __init__(self, max_short_wick_length: float = 0.03, difference_threshold: float = 0.05):
         super(Tweezer, self).__init__("Tweezer")
         self.max_short_wick_length = max_short_wick_length
@@ -118,23 +119,24 @@ class Tweezer(PatternMatcher):
                 compare_low = prev_candle.Low / curr_candle.Low
                 if 1 - self.threshold <= compare_low <= 1 + self.threshold:
                     signals_found.append((curr_candle.name, 1))
-                
+
             # Case 2: Green, Red + wicks at the top - bearish
-            if (prev_candle_body > 0 and curr_candle_body < 0): 
+            if (prev_candle_body > 0 and curr_candle_body < 0):
                 compare_high = prev_candle.High / curr_candle.High
                 if 1 - self.threshold <= compare_high <= 1 + self.threshold:
                     signals_found.append((curr_candle.name, -1))
         return signals_found
 
+
 class Marubozu(PatternMatcher):
     CANDLES_REQUIRED = 1
-    
+
     def __init__(self):
         super(Marubozu, self).__init__("Marubozu")
 
     def process(self, data: pd.DataFrame):
         signals_found: Tuple[datetime, int] = []
-        
+
         for idx, candlestick in enumerate(data):
             if data.Open < data.Close:  # Bullish
                 if data.Open == data.High and data.Close == data.Low:
@@ -143,6 +145,7 @@ class Marubozu(PatternMatcher):
                 if data.Open == data.Low and data.Close == data.High:
                     signals_found.append((candlestick.name, -1))
         return signals_found
+
 
 if __name__ == '__main__':
     # Class testing
@@ -153,4 +156,3 @@ if __name__ == '__main__':
     data = {'open': [1, 2, 6], 'close': [10, 3, 1]}
     # DataFrame = pd.DataFrame(data)
     print(candle.process())
-    
