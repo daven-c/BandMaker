@@ -27,7 +27,7 @@ def annotate_patterns(fig, patterns: Tuple[pd.Series, int]):
         )
 
 
-def visualize_patterns(ticker: str, pattern_matcher: PatternMatcher, save: bool = False):
+def visualize_patterns(ticker: str, pattern_matcher: PatternMatcher, display: bool = True, save: bool = False):
     info = yf.Ticker(ticker)
 
     data = info.history(period='1y', interval='1d')
@@ -41,7 +41,10 @@ def visualize_patterns(ticker: str, pattern_matcher: PatternMatcher, save: bool 
     print(f"{len(patterns)} patterns found in {len(data)} candles")
     annotate_patterns(fig, patterns)
 
-    fig.show()
+    if display:
+        fig.show()
+    if save:
+        fig.write_image(f"{ticker} - {pattern_matcher.type}")
 
 
 if __name__ == '__main__':
