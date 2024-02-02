@@ -27,21 +27,25 @@ def annotate_patterns(fig, patterns: Tuple[pd.Series, int]):
         )
 
 
-ticker = 'AAPL'
-pattern_matcher: PatternMatcher = Tweezer(
-    max_short_wick_length=0.01, difference_threshold=0.01)
+def visualize_patterns(ticker: str, pattern_matcher: PatternMatcher, save: bool = False):
+    info = yf.Ticker(ticker)
 
-info = yf.Ticker(ticker)
+    data = info.history(period='1y', interval='1d')
 
-data = info.history(period='1y', interval='1d')
+    fig = go.Figure(data=[go.Candlestick(x=data.index, open=data['Open'],
+                    close=data['Close'], high=data['High'], low=data['Low'])])
+    fig.update_layout(
+        title_text=f"{ticker} - {pattern_matcher.type}")
 
-fig = go.Figure(data=[go.Candlestick(x=data.index, open=data['Open'],
-                close=data['Close'], high=data['High'], low=data['Low'])])
-fig.update_layout(
-    title_text=f"{ticker} - {pattern_matcher.type}")
+    patterns = get_patterns(pattern_matcher, data)
+    print(f"{len(patterns)} patterns found in {len(data)} candles")
+    annotate_patterns(fig, patterns)
 
-patterns = get_patterns(pattern_matcher, data)
-print(f"{len(patterns)} patterns found in {len(data)} candles")
-annotate_patterns(fig, patterns)
+    fig.show()
 
-fig.show()
+
+if __name__ == '__main__':
+    ticker = 'AAPL'
+    pattern_matcher: PatternMatcher = Tweezer(
+        max_short_wick_length=0.01, difference_threshold=0.01)
+    visualize_patterns(ticker, pattern_matcher)
