@@ -266,7 +266,7 @@ class Marubozu(PatternMatcher):
             candle_total_length = candlestick.High - candlestick.Low
             candle_body_length = abs(candlestick.Open - candlestick.Close)
             if (candle_body_length / candle_total_length) >= self.min_body_size:
-                if candlestick.Open < candlestick.Close:  # Bullish
+                if candlestick.Open <= candlestick.Close:  # Bullish
                     signals_found.append((candlestick, 1))
                 else:  # Bearish
                     signals_found.append((candlestick, -1))
