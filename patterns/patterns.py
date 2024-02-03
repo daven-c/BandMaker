@@ -132,29 +132,20 @@ class Tweezer(PatternMatcher):
 class Marubozu(PatternMatcher):
     CANDLES_REQUIRED = 1
 
-    def __init__(self):
+    def __init__(self, min_body_size: float = 0.95):
         super(Marubozu, self).__init__("Marubozu")
+        self.min_body_size = min_body_size
 
     def process(self, data: pd.DataFrame):
         signals_found = []
 
         for i in range(len(data)):
             candlestick = data.iloc[i]
-            if candlestick.Open < candlestick.Close:  # Bullish
-                if candlestick.Open == candlestick.High and candlestick.Close == candlestick.Low:
+            candle_total_length = candlestick.High - candlestick.Low
+            candle_body_length = abs(candlestick.Open - candlestick.Close)
+            if (candle_body_length / candle_total_length) >= self.min_body_size:
+                if candlestick.Open < candlestick.Close:  # Bullish
                     signals_found.append((candlestick, 1))
-            else:  # Bearish
-                if candlestick.Open == candlestick.Low or candlestick.Close == candlestick.High:
+                else:  # Bearish
                     signals_found.append((candlestick, -1))
         return signals_found
-
-
-if __name__ == '__main__':
-    # Class testing
-    symbol = 'AAPL'
-    # stock = yf.download(symbol, start="2023-12-1", interval="1d")
-
-    candle = ShootingStar(stock)
-    data = {'open': [1, 2, 6], 'close': [10, 3, 1]}
-    # DataFrame = pd.DataFrame(data)
-    print(candle.process())

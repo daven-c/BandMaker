@@ -34,11 +34,11 @@ def visualize_patterns(ticker: str, pattern_matcher: PatternMatcher, display: bo
 
     fig = go.Figure(data=[go.Candlestick(x=data.index, open=data['Open'],
                     close=data['Close'], high=data['High'], low=data['Low'])])
-    fig.update_layout(
-        title_text=f"{ticker} - {pattern_matcher.type}")
 
     patterns = get_patterns(pattern_matcher, data)
     print(f"{len(patterns)} patterns found in {len(data)} candles")
+    fig.update_layout(
+        title_text=f"{ticker} - {len(patterns)} {pattern_matcher.type}(s) detected")
     annotate_patterns(fig, patterns)
 
     if display:
@@ -48,7 +48,6 @@ def visualize_patterns(ticker: str, pattern_matcher: PatternMatcher, display: bo
 
 
 if __name__ == '__main__':
-    ticker = 'AAPL'
-    pattern_matcher: PatternMatcher = Tweezer(
-        max_short_wick_length=0.01, difference_threshold=0.01)
+    ticker = 'INTL'
+    pattern_matcher: PatternMatcher = Tweezer()
     visualize_patterns(ticker, pattern_matcher)
