@@ -11,7 +11,7 @@ class PatternMatcher(ABC):
         self.type = type
 
     @abstractmethod
-    def process(self) -> Tuple[pd.Series, int]:
+    def process(self, data: pd.DataFrame) -> Tuple[pd.Series, int]:
         ...
 
 

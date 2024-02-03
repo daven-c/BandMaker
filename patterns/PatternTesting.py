@@ -27,11 +27,7 @@ def annotate_patterns(fig, patterns: Tuple[pd.Series, int]):
         )
 
 
-def visualize_patterns(ticker: str, pattern_matcher: PatternMatcher, display: bool = True, save: bool = False):
-    info = yf.Ticker(ticker)
-
-    data = info.history(period='1y', interval='1d')
-
+def visualize_patterns(data: pd.DataFrame, pattern_matcher: PatternMatcher, display: bool = True, save: bool = False):
     fig = go.Figure(data=[go.Candlestick(x=data.index, open=data['Open'],
                     close=data['Close'], high=data['High'], low=data['Low'])])
 
@@ -49,5 +45,8 @@ def visualize_patterns(ticker: str, pattern_matcher: PatternMatcher, display: bo
 
 if __name__ == '__main__':
     ticker = 'INTL'
-    pattern_matcher: PatternMatcher = Tweezer()
-    visualize_patterns(ticker, pattern_matcher)
+    info = yf.Ticker(ticker)
+    data = info.history(period='1y', interval='1d')
+    
+    pattern_matcher: PatternMatcher = Marubozu()
+    visualize_patterns(data, pattern_matcher)
