@@ -47,6 +47,6 @@ if __name__ == '__main__':
     ticker = 'INTL'
     info = yf.Ticker(ticker)
     data = info.history(period='1y', interval='1d')
-    
+
     pattern_matcher: PatternMatcher = Marubozu()
     visualize_patterns(data, pattern_matcher)
