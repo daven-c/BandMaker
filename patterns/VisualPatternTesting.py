@@ -29,7 +29,7 @@ def visualize_patterns(data: pd.DataFrame, pattern_matcher: PatternMatcher, disp
     fig = go.Figure(data=[go.Candlestick(x=data.index, open=data['Open'],
                     close=data['Close'], high=data['High'], low=data['Low'])])
 
-    patterns = get_patterns(pattern_matcher, data)
+    patterns = pattern_matcher.process(data)
     print(f"{len(patterns)} patterns found in {len(data)} candles")
     fig.update_layout(
         title_text=f"{ticker} - {len(patterns)} {pattern_matcher.type}(s) detected")

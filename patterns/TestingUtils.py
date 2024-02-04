@@ -7,7 +7,3 @@ def get_random_ticker() -> str:
         data = info.history(period='1y', interval='1d')
     return ticker
 
-
-def get_patterns(matcher: PatternMatcher, data: pd.DataFrame):
-    patterns_found = matcher.process(data)
-    return patterns_found
