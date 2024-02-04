@@ -11,7 +11,7 @@ def format_date(date, get_next_day: bool = False):
     formatted_date = dt_object.strftime("%m-%d-%y")
     return formatted_date
 
-def simulate_trading(data: pd.DataFrame, starting_cash: int = 1000, print_trades: bool = False):
+def simulate_trading(pattern_matcher: PatternMacher, data: pd.DataFrame, starting_cash: int = 1000, print_trades: bool = False):
     
     current_value = starting_cash
     shares = 0
@@ -23,7 +23,7 @@ def simulate_trading(data: pd.DataFrame, starting_cash: int = 1000, print_trades
     # Iterate up to the most recent day, sell all shares on the last day
     # Buy/Sell at the opening price of the next day, simulates placing orders overnight
     for day_idx in range(pattern_matcher.CANDLES_REQUIRED - 1, len(data) - 1):
-        result = pattern_matcher.process(data=data.iloc[day_idx - Marubozu.CANDLES_REQUIRED + 1:day_idx + 1])  # Check if pattern can be detected from past day
+        result = pattern_matcher.process(data=data.iloc[day_idx - pattern_matcher.CANDLES_REQUIRED + 1:day_idx + 1])  # Check if pattern can be detected from past day
         if result != []:  # pattern found
             current_day = result[0][0]
             next_day_price = round(data.iloc[day_idx + 1].Open, 2)
@@ -83,7 +83,7 @@ if __name__ == '__main__':
         print("Ticker not found")
         quit()
     
-    result = simulate_trading(data, starting_cash=1000, print_trades=print_trades)
+    result = simulate_trading(pattern_matcher, data, starting_cash=1000, print_trades=print_trades)
     
     # Final balance
     print(result)
