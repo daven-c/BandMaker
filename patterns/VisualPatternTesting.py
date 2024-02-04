@@ -60,9 +60,7 @@ if __name__ == '__main__':
             data = info.history(period='1y', interval='1d')
             if len(get_patterns(matcher=pattern_matcher, data=data)) < 30:
                 data = []
-            
-    
-    
+
 
     print(ticker)
     visualize_patterns(data, pattern_matcher)
