@@ -4,11 +4,7 @@ from patterns import *
 import pandas as pd
 import random
 from typing import Tuple
-
-
-def get_patterns(matcher: PatternMatcher, data: pd.DataFrame):
-    patterns_found = matcher.process(data)
-    return patterns_found
+from TestingUtils import *
 
 
 def annotate_patterns(fig, patterns: Tuple[pd.Series, int]):
@@ -33,7 +29,7 @@ def visualize_patterns(data: pd.DataFrame, pattern_matcher: PatternMatcher, disp
     fig = go.Figure(data=[go.Candlestick(x=data.index, open=data['Open'],
                     close=data['Close'], high=data['High'], low=data['Low'])])
 
-    patterns = get_patterns(pattern_matcher, data)
+    patterns = pattern_matcher.process(data)
     print(f"{len(patterns)} patterns found in {len(data)} candles")
     fig.update_layout(
         title_text=f"{ticker} - {len(patterns)} {pattern_matcher.type}(s) detected")
@@ -48,21 +44,9 @@ def visualize_patterns(data: pd.DataFrame, pattern_matcher: PatternMatcher, disp
 if __name__ == '__main__':
     ticker = 'INTL'  # Leave blank ('') if random ticker wanted
     pattern_matcher: PatternMatcher = Marubozu()
-    data = []
     
-    if ticker != '':
-        info = yf.Ticker(ticker)
-        data = info.history(period='1y', interval='1d')
-        
-    else:
-        while len(data) == 0:
-            ticker = ''.join(random.choice('ABCDEFGHIJKLMNOPQRSTUVWXYZ') for _ in range(random.randint(3, 5)))
-            info = yf.Ticker(ticker)
-            data = info.history(period='1y', interval='1d')
-            if len(get_patterns(matcher=pattern_matcher, data=data)) < 30:
-                data = []
-
-
-    print(ticker)
+    info = yf.Ticker(ticker)
+    data = info.history(period='1y', interval='1d')
+    
     visualize_patterns(data, pattern_matcher)
     
