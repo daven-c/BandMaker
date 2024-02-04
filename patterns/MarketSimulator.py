@@ -67,6 +67,7 @@ def simulate_trading(data: pd.DataFrame, starting_cash: int = 1000, print_trades
 
 if __name__ == '__main__':
     ticker = 'ION'  # Choose ticker
+    # Change to cmd args?
     pattern_matcher: PatternMatcher = Marubozu()  # Choose pattern to be tested
     
     info = yf.Ticker(ticker)
