@@ -263,10 +263,10 @@ class Marubozu(PatternMatcher):
 
         for i in range(len(data)):
             candlestick = data.iloc[i]
-            if candlestick.Open <= candlestick.Close:  # Bullish
+            if candlestick.Open < candlestick.Close:  # Bullish
                 if candlestick.High == candlestick.Close and candlestick.Low == candlestick.Open:
                     signals_found.append((candlestick, 1))
-            else:  # Bearish
+            elif candlestick.Open > candlestick.Close:  # Bearish
                 if candlestick.High == candlestick.Open and candlestick.Low == candlestick.Close:
                     signals_found.append((candlestick, -1))
         return signals_found
