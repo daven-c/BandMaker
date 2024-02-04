@@ -2,6 +2,7 @@ import yfinance as yf
 from patterns import *
 import pandas as pd
 from datetime import datetime, timedelta
+import sys
 
 def format_date(date, get_next_day: bool = False):
     dt_object = datetime.strptime(str(date), "%Y-%m-%d %H:%M:%S%z")
@@ -21,7 +22,7 @@ def simulate_trading(data: pd.DataFrame, starting_cash: int = 1000, print_trades
         
     # Iterate up to the most recent day, sell all shares on the last day
     # Buy/Sell at the opening price of the next day, simulates placing orders overnight
-    for day_idx in range(pattern_matcher.CANDLES_REQUIRED - 1, len(data)):
+    for day_idx in range(pattern_matcher.CANDLES_REQUIRED - 1, len(data) - 1):
         result = pattern_matcher.process(data=data.iloc[day_idx - Marubozu.CANDLES_REQUIRED + 1:day_idx + 1])  # Check if pattern can be detected from past day
         if result != []:  # pattern found
             current_day = result[0][0]
@@ -66,14 +67,18 @@ def simulate_trading(data: pd.DataFrame, starting_cash: int = 1000, print_trades
     return {'value': current_value, 'num_trades': trades_made, 'profit': total_profit, 'profit_percent': profit_percent}
 
 if __name__ == '__main__':
-    ticker = 'ION'  # Choose ticker
-    # Change to cmd args?
+    # Command line args: ticker -p: (print_trades)
+    ticker = sys.argv[1]  # IOR, INTL
+    print_trades = '-p' in sys.argv
     pattern_matcher: PatternMatcher = Marubozu()  # Choose pattern to be tested
     
     info = yf.Ticker(ticker)
     data = info.history(period='1y', interval='1d')
+    if len(data) == 0:
+        print("Ticker not found")
+        quit()
     
-    result = simulate_trading(data, starting_cash=1000, print_trades=True)
+    result = simulate_trading(data, starting_cash=1000, print_trades=print_trades)
     
     # Final balance
     print(result)
