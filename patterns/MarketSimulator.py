@@ -11,7 +11,7 @@ def format_date(date, get_next_day: bool = False):
     formatted_date = dt_object.strftime("%m-%d-%y")
     return formatted_date
 
-def simulate_trading(pattern_matcher: PatternMacher, data: pd.DataFrame, starting_cash: int = 1000, print_trades: bool = False):
+def simulate_trading(pattern_matcher: PatternMatcher, data: pd.DataFrame, starting_cash: int = 1000, print_trades: bool = False):
     
     current_value = starting_cash
     shares = 0
