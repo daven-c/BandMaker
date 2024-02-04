@@ -67,9 +67,14 @@ def simulate_trading(data: pd.DataFrame, starting_cash: int = 1000, print_trades
     return {'value': current_value, 'num_trades': trades_made, 'profit': total_profit, 'profit_percent': profit_percent}
 
 if __name__ == '__main__':
-    # Command line args: ticker -p: (print_trades)
-    ticker = sys.argv[1]  # IOR, INTL
-    print_trades = '-p' in sys.argv
+    # No command line arguments
+    if len(sys.arv) == 1:   
+        ticker = 'SSIC'  # IOR, INTL
+        print_trades = True
+    else:  # <Ticker> <Flags>
+        ticker = sys.arv[1]
+        print_trades = '-p' in sys.argv
+        
     pattern_matcher: PatternMatcher = Marubozu()  # Choose pattern to be tested
     
     info = yf.Ticker(ticker)

@@ -13,7 +13,7 @@ def get_patterns(matcher: PatternMatcher, data: pd.DataFrame):
 def annotate_patterns(fig, patterns: Tuple[pd.Series, int]):
     for pattern in patterns:
         fig.add_annotation(
-            text=" ",
+            text="o",
             # x-coordinate of the annotation (use any valid x-value)
             x=pattern[0].name,
             # y-coordinate of the annotation (use any valid y-value)
