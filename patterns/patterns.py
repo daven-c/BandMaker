@@ -177,8 +177,9 @@ class DojiCandle(PatternMatcher):
         elif (direction == -1):  # bearish
             WickSize = (df.High.iloc[0] - df.Open.iloc[0]) + (df.Close.iloc[0] - df.Low.iloc[0])
         
-        if(bodyLength * scale <= WickSize): #if candle is not doji (wicks not long enough in comparison to body)
-            if(super.stockDirection(df[1]) == )
+        if (bodyLength * scale <= WickSize): #if candle is not doji (wicks not long enough in comparison to body)
+            if(super.stockDirection(df[1]) == direction):   
+                ...
         else:
             return 0
 
@@ -254,20 +255,18 @@ class Tweezer(PatternMatcher):
 class Marubozu(PatternMatcher):
     CANDLES_REQUIRED = 1
 
-    def __init__(self, min_body_size: float = 0.95):
+    def __init__(self):
         super(Marubozu, self).__init__("Marubozu")
-        self.min_body_size = min_body_size
 
     def process(self, data: pd.DataFrame):
         signals_found = []
 
         for i in range(len(data)):
             candlestick = data.iloc[i]
-            candle_total_length = candlestick.High - candlestick.Low
-            candle_body_length = abs(candlestick.Open - candlestick.Close)
-            if (candle_body_length / candle_total_length) >= self.min_body_size:
-                if candlestick.Open <= candlestick.Close:  # Bullish
+            if candlestick.Open <= candlestick.Close:  # Bullish
+                if candlestick.High == candlestick.Close and candlestick.Low == candlestick.Open:
                     signals_found.append((candlestick, 1))
-                else:  # Bearish
+            else:  # Bearish
+                if candlestick.High == candlestick.Open and candlestick.Low == candlestick.Close:
                     signals_found.append((candlestick, -1))
         return signals_found

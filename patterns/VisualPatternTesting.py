@@ -2,6 +2,7 @@ import plotly.graph_objects as go
 import yfinance as yf
 from patterns import *
 import pandas as pd
+import random
 
 
 def get_patterns(matcher: PatternMatcher, data: pd.DataFrame):
@@ -44,9 +45,25 @@ def visualize_patterns(data: pd.DataFrame, pattern_matcher: PatternMatcher, disp
 
 
 if __name__ == '__main__':
-    ticker = 'INTL'
-    info = yf.Ticker(ticker)
-    data = info.history(period='1y', interval='1d')
-
+    ticker = ''  # Leave blank ('') if random ticker wanted
     pattern_matcher: PatternMatcher = Marubozu()
+    data = []
+    
+    if ticker != '':
+        info = yf.Ticker(ticker)
+        data = info.history(period='1y', interval='1d')
+        
+    else:
+        while len(data) == 0:
+            ticker = ''.join(random.choice('ABCDEFGHIJKLMNOPQRSTUVWXYZ') for _ in range(random.randint(3, 5)))
+            info = yf.Ticker(ticker)
+            data = info.history(period='1y', interval='1d')
+            if len(get_patterns(matcher=pattern_matcher, data=data)) < 30:
+                data = []
+            
+    
+    
+
+    print(ticker)
     visualize_patterns(data, pattern_matcher)
+    
