@@ -10,7 +10,7 @@ import os
 
 
 # BOT Settings
-TOKEN = "MTE5MjkyODY0OTgwNTA0NTk0Mw.GwEF8F.MccvgaldNMJxes3Qi9fHcxaukFLO5SL0Hg9XG4"
+TOKEN = open('secrets', 'r').readline().strip()
 LOGS = True
 LOGS_CHANNEL_ID = 1194393666740048015
 PRIV_METHODS = ['test']
