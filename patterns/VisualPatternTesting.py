@@ -3,6 +3,7 @@ import yfinance as yf
 from patterns import *
 import pandas as pd
 import random
+from typing import Tuple
 
 
 def get_patterns(matcher: PatternMatcher, data: pd.DataFrame):
@@ -45,7 +46,7 @@ def visualize_patterns(data: pd.DataFrame, pattern_matcher: PatternMatcher, disp
 
 
 if __name__ == '__main__':
-    ticker = ''  # Leave blank ('') if random ticker wanted
+    ticker = 'INTL'  # Leave blank ('') if random ticker wanted
     pattern_matcher: PatternMatcher = Marubozu()
     data = []
     
