@@ -120,7 +120,7 @@ class DojiCandle(PatternMatcher):
         else:
             return 0
 
-    def process(self, data):
+    def process(self, data : pd.DataFrame):
         signals_found = []
 
         for i in range(2, len(data)):

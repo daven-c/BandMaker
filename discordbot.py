@@ -44,8 +44,7 @@ async def on_ready():
     cur.execute('''
     CREATE TABLE IF NOT EXISTS stocks(
         stockID text UNIQUE,
-        support text,
-        resistance text
+        interval text
         )
     ''')
     con.commit()  # use commit to save changes
@@ -53,7 +52,6 @@ async def on_ready():
     #await alert_user()
     #await sendLogs('client ready')
     await alert_user()
-    # await sendLogs('client ready')
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f'for help'))
 
 
@@ -68,35 +66,28 @@ async def help(interaction: discord.Interaction):
     embed.add_field(name='Bot', inline=False, value=commands_str)
     await interaction.response.send_message(embed=embed)
 
-
-@tree.command(name='online', description='check if bot is responsive')
-async def check_online(interaction: discord.Interaction):
-    await interaction.response.send_message(content='\N{CHECK MARK}')
-
-
-@tree.command(name='echo', description='<msg> | ghost echo a message')
-async def echo(interaction: discord.Interaction, msg: str):
-    await interaction.response.send_message('...', delete_after=.01)
-    await interaction.channel.send(msg)
-
-
-@tree.command(name="track-stock", description="Adds stock to the watchlist")
-async def add_stock(interaction: discord.Interaction, stock: str):
-    try:#check if the stock name provided by user is valid
-        stock_data = yf.Ticker(str(stock))
-        info = stock_data.info
-    except Exception as e: #tell user that the stock name is not valid
-        await interaction.response.send_message("Error: The stock name you entered is not valid " + stock)
+@tree.command(name="track-stock", description="Adds stock to the watchlist\nstock: name of ticker\ninterval: How often candlesticks should be analyzed")
+async def add_stock(interaction: discord.Interaction, stock: str, interval: str):
+    stock_data = yf.Ticker(str(stock))
+    info = stock_data.info#get info to see if the ticker is valid
+    if len(info) == 1: #tell user that the stock name is not valid
+        await interaction.response.send_message("Error: The stock name you entered is not valid: " + stock)
         return
+    
+    interval_set = {"1m","2m","5m","15m","30m","60m","90m","1h","1d","5d","1wk","1mo","3mo"}
+    interval_set.add(interval.lower()) 
+    if len(interval_set) != 13:#check if the interval is in the set above
+        await interaction.response.send_message("Error: The interval you entered is not valid\nValid intervals: 1m,2m,5m,15m,30m,60m,90m,1h,1d,5d,1wk,1mo,3mo")
+        return 
     
     try:#check if we are already tracking the stock 
         stock = stock.upper()#make all stock names uppercase only
         cur.execute('''
-            INSERT INTO stocks (stockID, support, resistance)
-                VALUES (?,?,?)
-        ''', [str(stock),'0','0']) #use second parameter to input python variables, must be in tuple form
+            INSERT INTO stocks (stockID, interval)
+                VALUES (?,?)
+        ''', [str(stock), str(interval)]) #use second parameter to input python variables, must be in tuple form
         con.commit()
-        await interaction.response.send_message("I am now tracking " + stock)
+        await interaction.response.send_message("I am now tracking " + stock + " with " + interval + " interval")
     except Exception as e:
         await interaction.response.send_message("Error: You are already tracking " + stock)
   
@@ -123,26 +114,6 @@ async def remove_stock(interaction: discord.Interaction, stock: str):
         await interaction.response.send_message(stock + " has been removed from the watch list")
     except Exception as e:
         await interaction.response.send_message("Error" + stock + " is not on the watch list")
-    
-@tree.command(name='stock-info', description='Show information about a stock')
-async def stock_info(interaction: discord.Interaction, stock: str):
-    embed = discord.Embed(title=f'{stock}', colour=discord.Colour.red())
-
-    embed.add_field(name='temp', value='body')
-
-    info = yf.Ticker(stock)
-    data = info.history(period='1y', interval='1d')
-    fig = go.Figure(data=[go.Candlestick(x=data.index, open=data['Open'],
-                    close=data['Close'], high=data['High'], low=data['Low'])])
-    fig.write_image(f"graphs/{interaction.user.name}-{stock}.png")
-    file = discord.File(
-        f"graphs/{interaction.user.name}-{stock}.png", filename="image.png")
-    embed.set_image(url="attachment://image.png")
-
-    embed.add_field(name='temp', value='body')
-
-    await interaction.response.send_message(embed=embed, file=file)
-    os.remove(f"graphs/{interaction.user.name}-{stock}.png")
 
 async def alert_user():
     while True:
@@ -151,7 +122,7 @@ async def alert_user():
                               colour=discord.Colour.red())
         embed.add_field(name='STOCK_NAME', inline=False, value='pattern name')
         embed.add_field(name='BEARISH/BULLISH', value='CONFIDENCE_PERCENTAGE')
-        await asyncio.sleep(10)
+        await asyncio.sleep(60)
         channel = client.get_channel(1194389374532603914)
         await channel.send(embed=embed)
 
