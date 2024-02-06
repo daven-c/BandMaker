@@ -21,13 +21,6 @@ class PatternMatcher(ABC):
             return -1
         else:
             return 1
-        
-    @staticmethod
-    def calc_moving_avg(df, window, date):
-        ma_window = 10
-        df['MA'] = df['Close'].rolling(window=window).mean()
-        print(df['MA'])
-        
 
 class MomentumCandle(PatternMatcher):
     CANDLES_REQUIRED = 2
@@ -202,15 +195,17 @@ class DojiCandle(PatternMatcher):
         data["signal_doji"] = signal
         return data
 
+
+"""
 class ShootingStar(PatternMatcher):
     CANDLES_REQUIRED = 1
 
     def __init__(self, max_body_length: float = 0.2, threshold: float = 0.4):
-        """
+        '''
         Args: 
             max_body_length (float, optional): max length of the body in proportion to the total length. Defaults to 0.2.
             threshold (float, optional): proportion of the total candlestick length that the Open must reside below. Defaults to 0.4.
-        """
+        '''
         super(ShootingStar, self).__init__("ShootingStar")
         self.max_body_length = max_body_length
         self.threshold = threshold
@@ -227,7 +222,7 @@ class ShootingStar(PatternMatcher):
                 signals_found.append((candlestick, -1))
 
         return signals_found
-
+"""
 
 class Tweezer(PatternMatcher):
     CANDLES_REQUIRED = 2

@@ -42,8 +42,8 @@ def visualize_patterns(data: pd.DataFrame, pattern_matcher: PatternMatcher, disp
 
 
 if __name__ == '__main__':
-    ticker = 'INTL'  # Leave blank ('') if random ticker wanted
-    pattern_matcher: PatternMatcher = ShootingStar()
+    ticker = 'NVDA'  # Leave blank ('') if random ticker wanted
+    pattern_matcher: PatternMatcher = Tweezer()
     
     info = yf.Ticker(ticker)
     data = info.history(period='1y', interval='1d')
