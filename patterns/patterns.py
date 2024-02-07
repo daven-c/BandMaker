@@ -6,6 +6,8 @@ from typing import Tuple, List
 
 
 class PatternMatcher(ABC):
+    
+    SUBCLASSES = None
 
     def __init__(self, type):
         self.type = type
@@ -272,3 +274,9 @@ class Marubozu(PatternMatcher):
                 if candlestick.High == candlestick.Open and candlestick.Low == candlestick.Close:
                     signals_found.append((candlestick, -1))
         return signals_found
+
+# Gets all candle patterns
+PatternMatcher.SUBCLASSES = [x.__name__ for x in PatternMatcher.__subclasses__()]
+
+if __name__ == '__main__':
+    print(PatternMatcher.SUBCLASSES)
