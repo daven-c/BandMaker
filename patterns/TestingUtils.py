@@ -1,3 +1,6 @@
+import random
+import yfinance as yf
+
 def get_random_ticker() -> str:
     ticker = ''
     data = []

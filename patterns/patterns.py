@@ -6,6 +6,8 @@ from typing import Tuple, List
 
 
 class PatternMatcher(ABC):
+    
+    SUBCLASSES = None
 
     def __init__(self, type):
         self.type = type
@@ -14,7 +16,8 @@ class PatternMatcher(ABC):
     def process(self, data: pd.DataFrame) -> Tuple[pd.Series, int]:
         ...
 
-    def stockDirection(self, df: pd.DataFrame):
+    @staticmethod
+    def stockDirection(df):
         # return values: 1 bullish, -1 bearish
         if (df.Open - df.Close >= 0):
             return -1
@@ -183,7 +186,7 @@ class ShootingStar(PatternMatcher):
             total_length = candlestick.High - candlestick.Low
             body_length = candlestick.Open - candlestick.Close
             # Bearish candle and body is less than the max size and body resides below threshold value
-            if (body_length < 0) and (body_length <= total_length * self.max_body_length) and (candlestick.Open <= total_length * self.threshold + candlestick.Low):
+            if (body_length > 0) and (body_length <= total_length * self.max_body_length) and (candlestick.Open <= total_length * self.threshold + candlestick.Low):
                 signals_found.append((candlestick, -1))
 
         return signals_found
@@ -192,9 +195,8 @@ class ShootingStar(PatternMatcher):
 class Tweezer(PatternMatcher):
     CANDLES_REQUIRED = 2
 
-    def __init__(self, max_short_wick_length: float = 0.03, difference_threshold: float = 0.05):
+    def __init__(self, difference_threshold: float = 0.005):
         super(Tweezer, self).__init__("Tweezer")
-        self.max_short_wick_length = max_short_wick_length
         self.threshold = difference_threshold
 
     def process(self, data: pd.DataFrame):
@@ -207,13 +209,13 @@ class Tweezer(PatternMatcher):
             prev_candle_body = prev_candle.Open - prev_candle.Close
             curr_candle_body = curr_candle.Open - curr_candle.Close
             # Case 1: Red, Green + wicks at the bottom - bullish
-            if (prev_candle_body < 0 and curr_candle_body > 0):
+            if (prev_candle_body > 0 and curr_candle_body < 0):
                 compare_low = prev_candle.Low / curr_candle.Low
                 if 1 - self.threshold <= compare_low <= 1 + self.threshold:
                     signals_found.append((curr_candle, 1))
 
             # Case 2: Green, Red + wicks at the top - bearish
-            if (prev_candle_body > 0 and curr_candle_body < 0):
+            if (prev_candle_body < 0 and curr_candle_body > 0):
                 compare_high = prev_candle.High / curr_candle.High
                 if 1 - self.threshold <= compare_high <= 1 + self.threshold:
                     signals_found.append((curr_candle, -1))
@@ -238,3 +240,9 @@ class Marubozu(PatternMatcher):
                 if candlestick.High == candlestick.Open and candlestick.Low == candlestick.Close:
                     signals_found.append((candlestick, -1))
         return signals_found
+
+# Gets all candle patterns
+PatternMatcher.SUBCLASSES = [x.__name__ for x in PatternMatcher.__subclasses__()]
+
+if __name__ == '__main__':
+    print(PatternMatcher.SUBCLASSES)
