@@ -2,7 +2,7 @@ import yfinance as yf
 from datetime import datetime
 import pandas as pd
 from abc import ABC, abstractmethod
-from typing import Tuple, List
+from typing import Tuple, List, Dict
 
 
 class PatternMatcher(ABC):
@@ -64,7 +64,7 @@ class EngulfingCandle(PatternMatcher):
             elif curr_candle.Open > prev_candle.Open and curr_candle.Open > prev_candle.Close and curr_candle.Close < prev_candle.Open and curr_candle.Close < prev_candle.Close:  # bearish
                 signals_found.append((curr_candle, -1))
         return signals_found
-
+"""
 class MultipleCandle(PatternMatcher):
     CANDLES_REQUIRED = 3
     
@@ -98,6 +98,7 @@ class MultipleCandle(PatternMatcher):
             if signal == 1 or signal == -1:
                 signals_found.append((curr_candle, signal))
         return signals_found
+"""
 
 class DojiCandle(PatternMatcher): #TODO: tweak the ratio A LOT 
     CANDLES_REQUIRED = 3
@@ -117,8 +118,6 @@ class DojiCandle(PatternMatcher): #TODO: tweak the ratio A LOT
         
         if (bodyLength * self.scale <= WickSize): #if candle is doji (wicks long enough in comparison to body)
             if(super().stockDirection(df.iloc[1]) == direction and super().stockDirection(df.iloc[2]) == direction): 
-                print("body length: ", bodyLength * self.scale)
-                print("wick size: ", WickSize)  
                 return direction
         else:
             return 0
@@ -192,6 +191,7 @@ class ShootingStar(PatternMatcher):
         return signals_found
 
 
+"""
 class Tweezer(PatternMatcher):
     CANDLES_REQUIRED = 2
 
@@ -220,6 +220,7 @@ class Tweezer(PatternMatcher):
                 if 1 - self.threshold <= compare_high <= 1 + self.threshold:
                     signals_found.append((curr_candle, -1))
         return signals_found
+"""
 
 
 class Marubozu(PatternMatcher):
