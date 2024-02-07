@@ -10,7 +10,7 @@ from TestingUtils import *
 def annotate_patterns(fig, patterns: Tuple[pd.Series, int], matcher: str = None):
     for pattern in patterns:
         fig.add_annotation(
-            text= matcher[0:3].upper() if matcher is not None else 'o',
+            text=matcher[0:3].upper() if matcher is not None else 'o',
             # x-coordinate of the annotation (use any valid x-value)
             x=pattern[0].name,
             # y-coordinate of the annotation (use any valid y-value)
@@ -33,11 +33,12 @@ def visualize_patterns(data: pd.DataFrame, pattern_matchers: PatternMatcher, dis
     for pattern in pattern_matchers:
         patterns_found = pattern.process(data)
         total_patterns_found += len(patterns_found)
-        print(f"{pattern.type} - {len(patterns_found)} patterns found in {len(data)} candles")
+        print(
+            f"{pattern.type} - {len(patterns_found)} patterns found in {len(data)} candles")
         annotate_patterns(fig, patterns_found, pattern.type)
-        
+
     fig.update_layout(
-            title_text=f"{ticker} - {total_patterns_found} patterns(s) detected - {', '.join([pattern.type for pattern in pattern_matchers])}")
+        title_text=f"{ticker} - {total_patterns_found} patterns(s) detected - {', '.join([pattern.type for pattern in pattern_matchers])}")
 
     if display:
         fig.show()
@@ -46,11 +47,11 @@ def visualize_patterns(data: pd.DataFrame, pattern_matchers: PatternMatcher, dis
 
 
 if __name__ == '__main__':
-    ticker = 'phi'  # Leave blank ('') if random ticker wanted
-    pattern_matchers: List[PatternMatcher] = [eval(pattern)() for pattern in PatternMatcher.SUBCLASSES]
-    
+    ticker = 'BABA'  # Leave blank ('') if random ticker wanted
+    pattern_matchers: List[PatternMatcher] = [
+        eval(pattern)() for pattern in PatternMatcher.SUBCLASSES]
+
     info = yf.Ticker(ticker)
     data = info.history(period='1y', interval='1d')
-    
+
     visualize_patterns(data, pattern_matchers)
-    
