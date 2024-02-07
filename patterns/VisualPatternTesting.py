@@ -46,7 +46,7 @@ def visualize_patterns(data: pd.DataFrame, pattern_matchers: PatternMatcher, dis
 
 
 if __name__ == '__main__':
-    ticker = 'opch'  # Leave blank ('') if random ticker wanted
+    ticker = 'phi'  # Leave blank ('') if random ticker wanted
     pattern_matchers: List[PatternMatcher] = [eval(pattern)() for pattern in PatternMatcher.SUBCLASSES]
     
     info = yf.Ticker(ticker)

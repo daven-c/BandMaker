@@ -75,7 +75,7 @@ def simulate_trading(pattern_matchers: List[PatternMatcher], data: pd.DataFrame,
 if __name__ == '__main__':
     # No command line arguments
     if len(sys.argv) == 1:   
-        ticker = 'dna'  # IOR, INTL
+        ticker = 'phi'  # IOR, INTL
         print_trades = True
     else:  # <Ticker> <Flags>
         ticker = sys.argv[1]
