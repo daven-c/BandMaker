@@ -70,13 +70,13 @@ def simulate_trading(pattern_matcher: PatternMatcher, data: pd.DataFrame, starti
 if __name__ == '__main__':
     # No command line arguments
     if len(sys.argv) == 1:   
-        ticker = 'SSIC'  # IOR, INTL
+        ticker = 'INTL'  # IOR, INTL
         print_trades = True
     else:  # <Ticker> <Flags>
         ticker = sys.argv[1]
         print_trades = '-p' in sys.argv
         
-    pattern_matcher: PatternMatcher = Marubozu()  # Choose pattern to be tested
+    pattern_matcher: PatternMatcher = Hammer()  # Choose pattern to be tested
     
     info = yf.Ticker(ticker)
     data = info.history(period='1y', interval='1d')

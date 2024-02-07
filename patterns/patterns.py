@@ -154,10 +154,10 @@ class Hammer(PatternMatcher):
             body_length = candlestick.Open - candlestick.Close
             direction = super().stockDirection(candlestick)
             # Bullish signal if body is wide enough and wick is long enough (no top wick)
-            if (body_length <= total_length * self.max_body_length_max) and (body_length >= total_length * self.max_body_length_min):
-                if(direction == 1) and (candlestick.High - candlestick.close == 0): #TODO: change these == 0s to <= (a range) 
+            if not(candlestick.Open == candlestick.Close == candlestick.High == candlestick.Low) and (body_length <= total_length * self.max_body_length_max) and (body_length >= total_length * self.max_body_length_min):
+                if(direction == 1) and (candlestick.Close / candlestick.High == .05): #TODO: change these == 0s to <= (a range) 
                     signals_found.append((candlestick, 1))
-                elif(direction == -1) and (candlestick.High - candlestick.open == 0):
+                elif(direction == -1) and (candlestick.Open / candlestick.High == .05):
                     signals_found.append((candlestick, 1))
 
         return signals_found
