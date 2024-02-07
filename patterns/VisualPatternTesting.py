@@ -2,7 +2,6 @@ import plotly.graph_objects as go
 import yfinance as yf
 from patterns import *
 import pandas as pd
-import random
 from typing import Tuple
 from TestingUtils import *
 
