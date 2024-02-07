@@ -6,6 +6,8 @@ from typing import Tuple, List
 
 
 class PatternMatcher(ABC):
+    
+    SUBCLASSES = None
 
     def __init__(self, type):
         self.type = type
@@ -14,9 +16,10 @@ class PatternMatcher(ABC):
     def process(self, data: pd.DataFrame) -> Tuple[pd.Series, int]:
         ...
 
-    def stockDirection(self, df: pd.DataFrame):
+    @staticmethod
+    def stockDirection(df):
         # return values: 1 bullish, -1 bearish
-        if (df.Open - df.Close >= 0):
+        if (df.Open.iloc[-1] - df.Close.iloc[-1] >= 0):
             return -1
         else:
             return 1
@@ -25,110 +28,176 @@ class MomentumCandle(PatternMatcher):
     CANDLES_REQUIRED = 2
 
     # Copy paste this
-    def __init__(self, scale: float = 5):
+    def __init__(self, scale: float = 2.5):
         super(MomentumCandle, self).__init__("MomentumCandle")
-        self.scale = scale
+
+    def signal_momentum_candle(self, df):
+        """
+        Summary:
+            asd
+
+        Args:
+            asd
+
+        Returns:
+            asd
+        """
+        close_difference = df.Open.iloc[1] - df.Close.iloc[1]
+        prev_difference = df.Open.iloc[0] - df.Close.iloc[0]
+
+        if abs(close_difference) > abs(scale * prev_difference):
+            return (-1 if close_difference > 0 else 1)
+        return 0
 
     def process(self, data: pd.DataFrame):
+        """
+        Summary:
+            asd
 
-        signals_found = []
+        Args:
+            asd
 
+        Returns:
+            asd
+        """
+
+        signal = []
+        candle_length = []
+        candle_length.append(0)
+        signal.append(0)
+
+        # Add candle stick length column to data frame
         for i in range(1, len(data)):
-            prev_candle = data.iloc[i - 1]
-            curr_candle = data.iloc[i]
-            close_difference = abs(curr_candle.Open - curr_candle.Close)
-            prev_difference = abs(prev_candle.Open - prev_candle.Close)
+            candle_length.append(data.Open.iloc[i] - data.Close.iloc[i])
+        data["candle_length"] = candle_length
 
-            if close_difference > self.scale * prev_difference:
-                signals_found.append((curr_candle, super().stockDirection(curr_candle)))
-        return signals_found
+        # Add signal column to data frame
+        for i in range(1, len(data)):
+            df = data[i-1:i+1]
+            signal.append(self.signal_momentum_candle(df))
+        data["signal_momentum"] = signal
+        return data
 
+#TODO:CHANGE THIS TO GO THROUGH ALL THE DATA
 class EngulfingCandle(PatternMatcher):
-    CANDLES_REQUIRED = 2
 
-    def __init__(self):
-        super(EngulfingCandle, self).__init__("EngulfingCandle")
+    # Copy paste this
+    def __init__(self, data):
+        super(EngulfingCandle, self).__init__(data)
 
-    def process(self, data : pd.DataFrame):
+    def signal_engulfing_candle(self, df, scale: float = 2.5):
+        """
+        Summary:
+            asd
 
-        signals_found = []
+        Args:
+            asd
 
+        Returns:
+            asd
+        """
+        # -1 is the current candlestick
+        if df.Open.iloc[-1] < df.Open.iloc[-2] and df.Open.iloc[-1] < df.Close.iloc[-2] and df.Close.iloc[-1] > df.Open.iloc[-2] and df.Close.iloc[-1] > df.Close.iloc[-2]:  # bullish
+            return 1
+        elif df.Open.iloc[-1] > df.Open.iloc[-2] and df.Open.iloc[-1] > df.Close.iloc[-2] and df.Close.iloc[-1] < df.Open.iloc[-2] and df.Close.iloc[-1] < df.Close.iloc[-2]:  # bearish
+            return -1
+        return 0
+
+    def process(self):
+        """
+        Summary:
+            asd
+
+        Args:
+            asd
+
+        Returns:
+            asd
+        """
+
+        signal = []
+        signal.append(0)
+        recentData = data.tail(3)
+
+        # Add signal column to data frame
         for i in range(1, len(data)):
-            prev_candle = data.iloc[i-1]
-            curr_candle = data.iloc[i]
-            if curr_candle.Open < prev_candle.Open and curr_candle.Open < prev_candle.Close and curr_candle.Close > prev_candle.Open and curr_candle.Close > prev_candle.Close:  # bullish
-                signals_found.append((curr_candle, 1))
-            elif curr_candle.Open > prev_candle.Open and curr_candle.Open > prev_candle.Close and curr_candle.Close < prev_candle.Open and curr_candle.Close < prev_candle.Close:  # bearish
-                signals_found.append((curr_candle, -1))
-        return signals_found
+            df = recentData[i-1:i+1]
+            signal.append(self.signal_engulfing_candle(df))
+        data["signal_engulfing"] = signal
+        return data
 
-class MultipleCandle(PatternMatcher):
-    CANDLES_REQUIRED = 3
-    
-    def __init__(self, scale : float = 0.10):
-        super(MultipleCandle, self).__init__("MultipleCandle")
+#CHANGE TO A LIST OF TUPLES RETURN
+#CHANGE TO A LIST OF TUPLES RETURN
+#CHANGE TO A LIST OF TUPLES RETURN
+#CHANGE TO A LIST OF TUPLES RETURN
+
+#CHANGE TO A LIST OF TUPLES RETURN
+#CHANGE TO A LIST OF TUPLES RETURN
+class MultipleCandle(PatternMatcher): #TODO:CHANGE TO A LIST OF TUPLES RETURN
+    # Copy paste this
+    def __init__(self, data):
+        super(MultipleCandle, self).__init__(data)
 
     def signal_multiple_candle(self, df):
-        wickDirection = set()
+        wickDirection = {}
         for i in range(0, len(df)):
-            direction = super().stockDirection(df.iloc[i])
-            if direction == 1:  # bullish
+            direction = super.stockDirection(df[i])
+            if (direction == 1):  # bullish
                 topWickSize = df.High.iloc[i] - df.Close.iloc[i]
                 botWickSize = df.Open.iloc[i] - df.Low.iloc[i]
-                wickDirection.add(-1 if topWickSize > botWickSize else 1)  # puts the direction the bigger wick is going into wickDirection set
-            elif direction == -1:  # bearish
+                wickDirection.update(1 if topWickSize > botWickSize else -1)  # puts the direction the bigger wick is going into wickDirection set
+            elif (direction == -1):  # bearish
                 topWickSize = df.High.iloc[i] - df.Open.iloc[i]
                 botWickSize = df.Close.iloc[i] - df.Low.iloc[i]
-                wickDirection.add(-1 if topWickSize > botWickSize else 1)
-        if len(wickDirection) > 1:
+                wickDirection.update(1 if topWickSize > botWickSize else -1)
+        if(len(wickDirection) > 1):
             return 0
         return wickDirection.pop()
         
         
-    def process(self, data: pd.DataFrame):
-        signals_found = []
+    def process(self):
+        signal = []
+        signal.append(0)
 
+        # Add signal column to data frame
         for i in range(2, len(data)):
             df = data[i-2:i+1]
-            curr_candle = data.iloc[i]
-            signal = self.signal_multiple_candle(df)
-            if signal == 1 or signal == -1:
-                signals_found.append((curr_candle, signal))
-        return signals_found
+            signal.append(self.signal_mutltiple_candle(df))
+        data["signal_multiple"] = signal
+        return data
 
 class DojiCandle(PatternMatcher):
-    CANDLES_REQUIRED = 3
+    # Copy paste this
+    def __init__(self, data):
+        super(DojiCandle, self).__init__(data)
 
-    def __init__(self, scale : float = 10):
-        super(DojiCandle, self).__init__("DojiCandle")
-        self.scale = scale
-
-    def signal_doji_candle(self, df):#scale: the two wicks combined is "scale" times larger than body
+    def signal_doji_candle(self, df, scale: 15):#scale: the two wicks combined is "scale" times larger than body
         #check if first candle is a doji candle
         bodyLength = abs(df.Open.iloc[0] - df.Close.iloc[0])
-        direction = super().stockDirection(df.iloc[0])
+        direction = super.stockDirection(df[0])
         if (direction == 1):  # bullish
             WickSize = (df.High.iloc[0] - df.Close.iloc[0]) + (df.Open.iloc[0] - df.Low.iloc[0])
         elif (direction == -1):  # bearish
             WickSize = (df.High.iloc[0] - df.Open.iloc[0]) + (df.Close.iloc[0] - df.Low.iloc[0])
         
-        if (bodyLength * self.scale <= WickSize): #if candle is doji (wicks long enough in comparison to body)
-            if(super().stockDirection(df.iloc[1]) == direction and super().stockDirection(df.iloc[2]) == direction): 
-                print("body length: ", bodyLength * self.scale)
-                print("wick size: ", WickSize)  
-                return direction
+        if (bodyLength * scale <= WickSize): #if candle is not doji (wicks not long enough in comparison to body)
+            if(super.stockDirection(df[1]) == direction):   
+                ...
         else:
             return 0
 
-    def process(self, data : pd.DataFrame):
-        signals_found = []
+    def process(self, data):
+        signal = []
+        signal.append(0)
 
+        # Add signal column to data frame
         for i in range(2, len(data)):
             df = data[i-2:i+1]
-            signal = self.signal_doji_candle(df)
-            if signal == -1 or signal == 1:
-                signals_found.append((data.iloc[i-2], signal))
-        return signals_found
+            signal.append(self.signal_doji_candle(df))
+        data["signal_doji"] = signal
+        return data
+
+
 
 class ShootingStar(PatternMatcher):
     CANDLES_REQUIRED = 1
@@ -151,7 +220,7 @@ class ShootingStar(PatternMatcher):
             total_length = candlestick.High - candlestick.Low
             body_length = candlestick.Open - candlestick.Close
             # Bearish candle and body is less than the max size and body resides below threshold value
-            if (body_length < 0) and (body_length <= total_length * self.max_body_length) and (candlestick.Open <= total_length * self.threshold + candlestick.Low):
+            if (body_length > 0) and (body_length <= total_length * self.max_body_length) and (candlestick.Open <= total_length * self.threshold + candlestick.Low):
                 signals_found.append((candlestick, -1))
 
         return signals_found
@@ -160,9 +229,8 @@ class ShootingStar(PatternMatcher):
 class Tweezer(PatternMatcher):
     CANDLES_REQUIRED = 2
 
-    def __init__(self, max_short_wick_length: float = 0.03, difference_threshold: float = 0.05):
+    def __init__(self, difference_threshold: float = 0.005):
         super(Tweezer, self).__init__("Tweezer")
-        self.max_short_wick_length = max_short_wick_length
         self.threshold = difference_threshold
 
     def process(self, data: pd.DataFrame):
@@ -175,13 +243,13 @@ class Tweezer(PatternMatcher):
             prev_candle_body = prev_candle.Open - prev_candle.Close
             curr_candle_body = curr_candle.Open - curr_candle.Close
             # Case 1: Red, Green + wicks at the bottom - bullish
-            if (prev_candle_body < 0 and curr_candle_body > 0):
+            if (prev_candle_body > 0 and curr_candle_body < 0):
                 compare_low = prev_candle.Low / curr_candle.Low
                 if 1 - self.threshold <= compare_low <= 1 + self.threshold:
                     signals_found.append((curr_candle, 1))
 
             # Case 2: Green, Red + wicks at the top - bearish
-            if (prev_candle_body > 0 and curr_candle_body < 0):
+            if (prev_candle_body < 0 and curr_candle_body > 0):
                 compare_high = prev_candle.High / curr_candle.High
                 if 1 - self.threshold <= compare_high <= 1 + self.threshold:
                     signals_found.append((curr_candle, -1))
@@ -206,3 +274,9 @@ class Marubozu(PatternMatcher):
                 if candlestick.High == candlestick.Open and candlestick.Low == candlestick.Close:
                     signals_found.append((candlestick, -1))
         return signals_found
+
+# Gets all candle patterns
+PatternMatcher.SUBCLASSES = [x.__name__ for x in PatternMatcher.__subclasses__()]
+
+if __name__ == '__main__':
+    print(PatternMatcher.SUBCLASSES)

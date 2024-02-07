@@ -12,12 +12,39 @@ import plotly.graph_objects as go
     
 
 #data = yf.download("AAPL", start="2023-12-23", interval="1d")   
-try:
-    stock_data = yf.Ticker("0")
-    info = stock_data.info
-    print(bool(info)) 
-except Exception as e:
-    print(f"An error occurred: {e}")
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Generate some example data (you can replace this with your own dataset)
+data = {'Date': pd.date_range(start='2022-01-01', periods=50),
+        'Close': [100, 105, 110, 95, 105, 115, 120, 125, 110, 105,
+                  100, 95, 105, 110, 115, 120, 125, 130, 125, 120,
+                  115, 110, 105, 100, 95, 105, 110, 115, 120, 125,
+                  130, 125, 120, 115, 110, 105, 100, 95, 105, 110,
+                  115, 120, 125, 130, 125, 120, 115, 110, 105, 100],
+        'Day': range(1, 51)}
+
+
+df = pd.DataFrame(data)
+df.set_index('Date', inplace=True)
+
+# Calculate the moving average (let's use a 10-day moving average as an example)
+ma_window = 10
+df['MA'] = df['Close'].rolling(window=ma_window).mean()
+
+
+
+
+# Plotting
+plt.figure(figsize=(10, 6))
+plt.plot(df.index, df['Close'], label='Closing Price', color='blue')
+plt.plot(df.index, df['MA'], label=f'{ma_window}-day Moving Average', color='red')
+
+plt.title('Stock Price with Moving Average')
+plt.xlabel('Date')
+plt.ylabel('Price')
+plt.legend()
+plt.show()
 # data = data.tail(3) #getting most recent data
 # signal = []
 # candle_length = []
