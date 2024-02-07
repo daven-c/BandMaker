@@ -96,10 +96,10 @@ class MultipleCandle(PatternMatcher):
                 signals_found.append((curr_candle, signal))
         return signals_found
 
-class DojiCandle(PatternMatcher):
+class DojiCandle(PatternMatcher): #TODO: tweak the ratio A LOT 
     CANDLES_REQUIRED = 3
 
-    def __init__(self, scale : float = 10):
+    def __init__(self, scale : float = 20):
         super(DojiCandle, self).__init__("DojiCandle")
         self.scale = scale
 
@@ -128,6 +128,38 @@ class DojiCandle(PatternMatcher):
             signal = self.signal_doji_candle(df)
             if signal == -1 or signal == 1:
                 signals_found.append((data.iloc[i-2], signal))
+        return signals_found
+
+class Hammer(PatternMatcher):
+    CANDLES_REQUIRED = 1
+
+    def __init__(self, max_body_length_min: float = 0.01, max_body_length_max: float = 0.3, threshold: float = 10):
+        """
+        Args: 
+            max_body_length_min (float, optional): min length of the body in proportion to the total length. Defaults to 0.2.
+            max_body_length_min (float, optional): max length of the body in proportion to the total length. Defaults to 0.3.
+            threshold (float, optional): proportion of the total candlestick length that the Open must reside below. Defaults to 0.4.
+        """
+        super(Hammer, self).__init__("Hammer")
+        self.max_body_length_min = max_body_length_min
+        self.max_body_length_max = max_body_length_max
+        self.threshold = threshold
+
+    def process(self, data: pd.DataFrame):
+        signals_found = []
+
+        for i in range(len(data)):
+            candlestick = data.iloc[i]
+            total_length = candlestick.High - candlestick.Low
+            body_length = candlestick.Open - candlestick.Close
+            direction = super().stockDirection(candlestick)
+            # Bullish signal if body is wide enough and wick is long enough (no top wick)
+            if (body_length <= total_length * self.max_body_length_max) and (body_length >= total_length * self.max_body_length_min):
+                if(direction == 1) and (candlestick.High - candlestick.close == 0): #TODO: change these == 0s to <= (a range) 
+                    signals_found.append((candlestick, 1))
+                elif(direction == -1) and (candlestick.High - candlestick.open == 0):
+                    signals_found.append((candlestick, 1))
+
         return signals_found
 
 class ShootingStar(PatternMatcher):
