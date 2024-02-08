@@ -7,7 +7,7 @@ from TestingUtils import *
 
 
 def format_date(date, get_next_day: bool = False):
-    dt_object = datetime.strptime(str(date), "%Y-%m-%d %H:%M:%S")
+    dt_object = datetime.strptime(str(date), "%Y-%m-%d %H:%M:%S%z")
     if get_next_day:
         dt_object = dt_object + timedelta(days=1)
     formatted_date = dt_object.strftime("%m-%d-%y")
