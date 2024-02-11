@@ -1,7 +1,7 @@
 import yfinance as yf
 import pandas as pd
 
-def generate_data(ticker: str):
+def generate_data(ticker: str) -> pd.DataFrame:
     ticker = yf.Ticker(ticker)
     
     stock_data = ticker.history(period='1y', interval='1d', rounding=2)[['Close', 'Volume']]
@@ -21,7 +21,7 @@ def generate_data(ticker: str):
     max_value = stock_data['Price'].max()
     normalized_data['Price'] = (stock_data['Price'] - min_value) / (max_value - min_value)
 
-    training_data = {'Date': [], 'X':[], 'y':[]}
+    training_data = {'Date': [], 'Historical_Data':[], 'Price_Change':[]}
     days_window = 30
     for first_day_idx in range(len(stock_data) - days_window):
         current_data = stock_data.iloc[first_day_idx: first_day_idx + days_window + 1]
@@ -29,9 +29,13 @@ def generate_data(ticker: str):
         current_day = current_data.iloc[-2]
         next_day = current_data.iloc[-1]
         
-        training_data['Date'].append(current_day.name)
-        training_data['X'].append(current_normalized_data.iloc[:-1].values)
-        training_data['y'].append(round(((next_day.Price - current_day.Price) / current_day.Price * 100), 2))
+        training_data['Date'].append(next_day.name)
+        training_data['Historical_Data'].append(current_normalized_data.iloc[:-1])
+        training_data['Price_Change'].append(round(((next_day.Price - current_day.Price) / current_day.Price * 100), 2))
         
-    training_data = pd.DataFrame(training_data, index=training_data['Date'], columns=['X', 'y'])
-    print(training_data)
+    training_data = pd.DataFrame(training_data, index=training_data['Date'], columns=['Historical_Data', 'Price_Change'])
+    return training_data
+    
+if __name__ == '__main__':
+    result = generate_data('NVDA')
+    print(result)
