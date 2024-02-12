@@ -47,11 +47,12 @@ def visualize_patterns(data: pd.DataFrame, pattern_matchers: PatternMatcher, dis
 
 
 if __name__ == '__main__':
-    ticker = 'INTC'  # Leave blank ('') if random ticker wanted
-    pattern_matchers: List[PatternMatcher] = [
-        eval(pattern)() for pattern in PatternMatcher.SUBCLASSES]
+    tickers = ['crwd', 'on', 'nxe', 'googl', 'tenb']
+    for ticker in tickers:
+        pattern_matchers: List[PatternMatcher] = [
+            eval(pattern)() for pattern in PatternMatcher.SUBCLASSES]
 
-    info = yf.Ticker(ticker)
-    data = info.history(period='1y', interval='1d')
+        info = yf.Ticker(ticker)
+        data = info.history(period='1y', interval='1d')
 
-    visualize_patterns(data, pattern_matchers)
+        visualize_patterns(data, pattern_matchers)
