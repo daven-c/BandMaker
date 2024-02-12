@@ -45,7 +45,7 @@ def simulate_trading(pattern_matchers: List[PatternMatcher], data: pd.DataFrame,
                     # Buy the stock
                     # Allows change in purchasing strategy
                     shares_bought = round(
-                        current_cash * buy_ratio / next_day_price, 2)
+                        current_cash * buy_ratio / next_day_price, 1)
                     cost = shares_bought * next_day_price
                     shares += shares_bought
                     current_cash = current_cash - cost
@@ -56,7 +56,7 @@ def simulate_trading(pattern_matchers: List[PatternMatcher], data: pd.DataFrame,
                 elif result[0][1] == -1:
                     # Sell the stock
                     # Allows change in purchasing strategy
-                    shares_sold = round(shares * sell_ratio, 2)
+                    shares_sold = round(shares * sell_ratio, 1)
                     profit = shares_sold * next_day_price
                     shares -= shares_sold
                     current_cash = current_cash + profit
