@@ -44,40 +44,39 @@ def simulate_trading(pattern_matchers: List[PatternMatcher], data: pd.DataFrame,
                 if result[0][1] == 1:  # Bullish pattern found
                     # Buy the stock
                     # Allows change in purchasing strategy
-                    shares_bought = int(
-                        current_cash * buy_ratio / next_day_price)
-                    cost = round(shares_bought * next_day_price, 2)
+                    shares_bought = round(
+                        current_cash * buy_ratio / next_day_price, 2)
+                    cost = shares_bought * next_day_price
                     shares += shares_bought
-                    current_cash = round(current_cash - cost, 2)
+                    current_cash = current_cash - cost
                     trades_made += 1
                     if print_trades:
                         print(
-                            f"\033[92m{next_day_date:<15} {pattern.type:<15} {'Buy':<10} {shares_bought:<10} ${next_day_price:<10} ${cost:<10}\033[0m")
+                            f"\033[92m{next_day_date:<15} {pattern.type:<15} {'Buy':<10} {shares_bought:<10.2f} ${next_day_price:<10.2f} ${cost:<10.2f}\033[0m")
                 elif result[0][1] == -1:
                     # Sell the stock
                     # Allows change in purchasing strategy
-                    shares_sold = 1 if shares == 1 else int(
-                        shares * sell_ratio)
-                    profit = round(shares_sold * next_day_price, 2)
+                    shares_sold = round(shares * sell_ratio, 2)
+                    profit = shares_sold * next_day_price
                     shares -= shares_sold
-                    current_cash = round(current_cash + profit, 2)
+                    current_cash = current_cash + profit
                     trades_made += 1
                     if print_trades:
                         print(
-                            f"\033[91m{next_day_date:<15} {pattern.type:<15} {'Sell':<10} {shares_sold:<10} ${next_day_price:<10} ${profit:<10}\033[0m")
+                            f"\033[91m{next_day_date:<15} {pattern.type:<15} {'Sell':<10} {shares_sold:<10.2f} ${next_day_price:<10.2f} ${profit:<10.2f}\033[0m")
 
     # Sell all remaining stock on last day
     current_day = data.iloc[-1]
     current_day_price = round(current_day.Close, 2)
     formatted_date = format_date(current_day.name)
     shares_sold = shares  # Allows change in purchasing strategy
-    profit = round(shares_sold * next_day_price, 2)
+    profit = shares_sold * next_day_price
     shares -= shares_sold
     current_cash += profit
     trades_made += 1
     if print_trades:
         print(
-            f"\033[91m{formatted_date:<15} {'Final':<15} {'Sell':<10} {shares_sold:<10} ${current_day_price:<10} ${profit:<10}\033[0m")
+            f"\033[91m{formatted_date:<15} {'Final':<15} {'Sell':<10} {shares_sold:<10.2f} ${current_day_price:<10.2f} ${profit:<10.2f}\033[0m")
 
     # Calculating results
     total_profit = round(current_cash - starting_cash, 2)
@@ -89,7 +88,7 @@ def simulate_trading(pattern_matchers: List[PatternMatcher], data: pd.DataFrame,
 if __name__ == '__main__':
     # No command line arguments
     if len(sys.argv) == 1:
-        ticker = 'INTC'  # IOR, INTL
+        ticker = 'CRWD'  # IOR, INTL
         print_trades = True
     else:  # <Ticker> <Flags>
         ticker = sys.argv[1]
@@ -105,7 +104,7 @@ if __name__ == '__main__':
         quit()
 
     result = simulate_trading(pattern_matchers, data, starting_cash=1000,
-                              buy_ratio=.1, sell_ratio=.1, print_trades=print_trades)
+                              buy_ratio=.5, sell_ratio=.2, print_trades=print_trades)
 
     # Final balance
     print(result)
