@@ -49,10 +49,10 @@ def visualize_patterns(data: pd.DataFrame, pattern_matchers: PatternMatcher, dis
 if __name__ == '__main__':
     tickers = ['crwd', 'on', 'nxe', 'googl', 'tenb']
     for ticker in tickers:
-        pattern_matchers: List[PatternMatcher] = [
-            eval(pattern)() for pattern in PatternMatcher.SUBCLASSES]
-
+        pattern_matchers: List[PatternMatcher] = [eval(pattern)(
+    ) for pattern in PatternMatcher.SUBCLASSES]
         info = yf.Ticker(ticker)
         data = info.history(period='1y', interval='1d')
+        PatternMatcher.preprocess(data)
 
         visualize_patterns(data, pattern_matchers)

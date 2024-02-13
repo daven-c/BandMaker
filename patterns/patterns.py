@@ -23,6 +23,12 @@ class PatternMatcher(ABC):
             return -1
         else:
             return 1
+        
+    @staticmethod
+    def preprocess(data: pd.DataFrame) -> pd.DataFrame:
+        data ['TrailingVolume']= data['Volume'].rolling(window=5).mean()
+        return data
+
 
 class MomentumCandle(PatternMatcher):
     CANDLES_REQUIRED = 2
@@ -191,23 +197,33 @@ class ShootingStar(PatternMatcher):
         return signals_found
 
 
-"""
+
 class Tweezer(PatternMatcher):
     CANDLES_REQUIRED = 2
 
-    def __init__(self, difference_threshold: float = 0.005):
+    def __init__(self, difference_threshold: float = 0.005, body_threshold = 0.6):
         super(Tweezer, self).__init__("Tweezer")
         self.threshold = difference_threshold
+        self.body_threshold = body_threshold
 
     def process(self, data: pd.DataFrame):
         signals_found = []
+        
+
 
         for i in range(1, len(data)):
+        
+            
             prev_candle = data.iloc[i - 1]
             curr_candle = data.iloc[i]
 
             prev_candle_body = prev_candle.Open - prev_candle.Close
             curr_candle_body = curr_candle.Open - curr_candle.Close
+
+            prev_total_length = prev_candle.High - prev_candle.Low
+            if abs(prev_candle_body) < abs(self.body_threshold * prev_total_length):
+                continue
+
             # Case 1: Red, Green + wicks at the bottom - bullish
             if (prev_candle_body > 0 and curr_candle_body < 0):
                 compare_low = prev_candle.Low / curr_candle.Low
@@ -220,7 +236,7 @@ class Tweezer(PatternMatcher):
                 if 1 - self.threshold <= compare_high <= 1 + self.threshold:
                     signals_found.append((curr_candle, -1))
         return signals_found
-"""
+
 
 
 class Marubozu(PatternMatcher):
