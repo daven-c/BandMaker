@@ -4,6 +4,12 @@ import pandas as pd
 from abc import ABC, abstractmethod
 from typing import Tuple, List, Dict
 
+class Indicators(ABC):
+
+    @staticmethod
+    def append_moving_average(data: pd.DataFrame, period: int = 30):
+        data['MA'] = data['Close'].rolling(window=period).mean()
+        return data
 
 class PatternMatcher(ABC):
     
@@ -246,4 +252,7 @@ class Marubozu(PatternMatcher):
 PatternMatcher.SUBCLASSES = [x.__name__ for x in PatternMatcher.__subclasses__()]
 
 if __name__ == '__main__':
-    print(PatternMatcher.SUBCLASSES)
+    ticker = 'NVDA'
+    source = yf.Ticker(ticker=ticker).history(period='1y', interval='1d')
+    Indicators.append_moving_average(source)
+    print(source)
