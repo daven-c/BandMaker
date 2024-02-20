@@ -9,6 +9,7 @@ class Indicators(ABC):
     @staticmethod
     def append_moving_average(data: pd.DataFrame, period: int = 30):
         data['MA'] = data['Close'].rolling(window=period).mean()
+        
         return data
 
 class PatternMatcher(ABC):
