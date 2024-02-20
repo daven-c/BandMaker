@@ -2,7 +2,6 @@ import yfinance as yf
 from patterns import *
 import pandas as pd
 from datetime import datetime, timedelta
-import sys
 from TestingUtils import *
 
 

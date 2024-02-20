@@ -5,6 +5,7 @@ import pandas as pd
 import random
 from typing import Tuple
 from TestingUtils import *
+import sys
 
 
 def annotate_patterns(fig, patterns: Tuple[pd.Series, int], matcher: str = None):
