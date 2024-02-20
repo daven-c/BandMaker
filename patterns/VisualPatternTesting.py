@@ -48,8 +48,8 @@ def visualize_patterns(data: pd.DataFrame, pattern_matchers: PatternMatcher, dis
 
 if __name__ == '__main__':
     tickers = ['crwd', 'on', 'nxe', 'googl', 'tenb']
-    if len(sys.argv) == 2:
-        tickers = [sys.argv]
+    if len(sys.argv) > 1:
+        tickers = sys.argv[1:]
 
     for ticker in tickers:
         pattern_matchers: List[PatternMatcher] = [eval(pattern)(
