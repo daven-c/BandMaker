@@ -117,7 +117,7 @@ async def remove_stock(interaction: discord.Interaction, stock: str):
 async def alert_user():
     #1m,2m,5m,15m,30m,60m
     channel = client.get_channel(1194389374532603914)
-    pattern_matchers = [MomentumCandle(), EngulfingCandle(), MultipleCandle(), DojiCandle(), ShootingStar(), Tweezer(), Marubozu()]
+    pattern_matchers = [MomentumCandle(), EngulfingCandle(), DojiCandle(), ShootingStar(), Tweezer(), Marubozu()]
     time = 0
     while True:             
         time += 1
