@@ -6,7 +6,7 @@ import sqlite3
 import asyncio
 from typing import Optional, List, Tuple, Dict
 import yfinance as yf
-import os
+from patterns.patterns import *
 
 
 # BOT Settings
@@ -23,7 +23,6 @@ tree = app_commands.CommandTree(client)
 # Database connection
 con = sqlite3.connect("bandmaker.db")
 cur = con.cursor()
-
 
 async def sendLogs(content: str, command_name: str = None):
     if LOGS:
@@ -49,8 +48,6 @@ async def on_ready():
     ''')
     con.commit()  # use commit to save changes
     await tree.sync()
-    #await alert_user()
-    #await sendLogs('client ready')
     await alert_user()
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f'for help'))
 
@@ -74,10 +71,11 @@ async def add_stock(interaction: discord.Interaction, stock: str, interval: str)
         await interaction.response.send_message("Error: The stock name you entered is not valid: " + stock)
         return
     
-    interval_set = {"1m","2m","5m","15m","30m","60m","90m","1h","1d","5d","1wk","1mo","3mo"}
+    interval_set = {"1m","2m","5m","15m","30m","60m"}
     interval_set.add(interval.lower()) 
-    if len(interval_set) != 13:#check if the interval is in the set above
-        await interaction.response.send_message("Error: The interval you entered is not valid\nValid intervals: 1m,2m,5m,15m,30m,60m,90m,1h,1d,5d,1wk,1mo,3mo")
+    print(interval)
+    if len(interval_set) != 6:#check if the interval is in the set above
+        await interaction.response.send_message("Error: The interval you entered is not valid\nValid intervals: 1m,2m,5m,15m,30m,60m")
         return 
     
     try:#check if we are already tracking the stock 
@@ -97,9 +95,9 @@ async def show_list(interaction: discord.Interaction):
         title=f'{interaction.user.name}', colour=discord.Colour.red())
 
     stockList = []
-    for row in cur.execute("SELECT stockID FROM stocks"):
-        stockList.append(row[0])
-    embed.add_field(name='Watch List', inline=False,
+    for row in cur.execute("SELECT * FROM stocks"):
+        stockList.append(str(row[0]) + " " + str(row[1]))
+    embed.add_field(name='Watch List(Ticker, Interval)', inline=False,
                     value='\n'.join(stockList))
 
     await interaction.response.send_message(embed=embed)
@@ -115,16 +113,55 @@ async def remove_stock(interaction: discord.Interaction, stock: str):
     except Exception as e:
         await interaction.response.send_message("Error" + stock + " is not on the watch list")
 
+# TODO: change to get most recent candles
 async def alert_user():
-    while True:
-        # implement stock pattern recognition
-        embed = discord.Embed(title=f'Pattern Detected',
-                              colour=discord.Colour.red())
-        embed.add_field(name='STOCK_NAME', inline=False, value='pattern name')
-        embed.add_field(name='BEARISH/BULLISH', value='CONFIDENCE_PERCENTAGE')
-        await asyncio.sleep(60)
-        channel = client.get_channel(1194389374532603914)
-        await channel.send(embed=embed)
+    #1m,2m,5m,15m,30m,60m
+    channel = client.get_channel(1194389374532603914)
+    pattern_matchers = [MomentumCandle(), EngulfingCandle(), MultipleCandle(), DojiCandle(), ShootingStar(), Tweezer(), Marubozu()]
+    time = 0
+    while True:             
+        time += 1
+        if time == 60: # Reset the clock every hour for the interval checking
+            time = 0
 
+        await channel.send("Checking all stocks..... time elapsed: " + str(time))#testing
+
+        tickers = []
+        for row in cur.execute('SELECT * FROM stocks'): # Collect all tickers and time intervals that need to be checked
+            interval = row[1]
+            if interval == '1m':
+                tickers.append((row[0], row[1]))
+                print(row[0] + " " + row[1])
+            elif interval == '2m' and time % 2 == 0:
+                tickers.append((row[0], row[1]))
+                print(row[0] + " " + row[1])
+            elif interval == '5m' and time % 5 == 0:
+                tickers.append((row[0], row[1]))
+                print(row[0] + " " + row[1])
+            elif interval == '15m' and time % 15 == 0:
+                tickers.append((row[0], row[1]))
+                print(row[0] + " " + row[1])
+            elif interval == '30m' and time % 30 == 0:
+                tickers.append((row[0], row[1]))
+                print(row[0] + " " + row[1])
+            elif interval =='60' and time == 0:
+                tickers.append((row[0], row[1]))
+                print(row[0] + " " + row[1])
+
+        for i in range(len(tickers)):
+            info = yf.Ticker(tickers[i][0])
+            data = info.history(period='1d', interval=tickers[i][1]) #Valid periods: 1d,5d,1mo,3mo,6mo,1y,2y,5y,10y,ytd,max
+            for j in range(len(pattern_matchers)):
+                patterns = pattern_matchers[j].process(data.tail(pattern_matchers[j].CANDLES_REQUIRED))
+                if len(patterns) == 0:
+                    continue
+                detection = patterns[-1]
+                embed = discord.Embed(title=f'Pattern Detected',
+                                        colour=discord.Colour.red())
+                embed.add_field(name=tickers[i][0], inline=False, value=pattern_matchers[j].NAME)
+                embed.add_field(name='Direction: ', value='BULLISH' if detection[-1] == 1 else 'BEARISH')
+                await channel.send(embed=embed)
+        
+        await asyncio.sleep(60)#check/refresh every one minute
 
 client.run(TOKEN)

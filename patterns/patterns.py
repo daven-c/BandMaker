@@ -32,6 +32,7 @@ class PatternMatcher(ABC):
 
 class MomentumCandle(PatternMatcher):
     CANDLES_REQUIRED = 2
+    NAME = 'Momentum Candle'
 
     # Copy paste this
     def __init__(self, scale: float = 5):
@@ -54,6 +55,7 @@ class MomentumCandle(PatternMatcher):
 
 class EngulfingCandle(PatternMatcher):
     CANDLES_REQUIRED = 2
+    NAME = 'Engulfing Candle'
 
     def __init__(self):
         super(EngulfingCandle, self).__init__("EngulfingCandle")
@@ -73,6 +75,7 @@ class EngulfingCandle(PatternMatcher):
 """
 class MultipleCandle(PatternMatcher):
     CANDLES_REQUIRED = 3
+    NAME = 'Multiple Candle'
     
     def __init__(self, scale : float = 0.10):
         super(MultipleCandle, self).__init__("MultipleCandle")
@@ -108,6 +111,7 @@ class MultipleCandle(PatternMatcher):
 
 class DojiCandle(PatternMatcher): #TODO: tweak the ratio A LOT 
     CANDLES_REQUIRED = 3
+    NAME = 'Doji Candle'
 
     def __init__(self, scale : float = 20):
         super(DojiCandle, self).__init__("DojiCandle")
@@ -172,6 +176,7 @@ class Hammer(PatternMatcher):
 
 class ShootingStar(PatternMatcher):
     CANDLES_REQUIRED = 1
+    NAME = 'Shooting Star'
 
     def __init__(self, max_body_length: float = 0.2, threshold: float = 0.4):
         """
@@ -200,6 +205,7 @@ class ShootingStar(PatternMatcher):
 
 class Tweezer(PatternMatcher):
     CANDLES_REQUIRED = 2
+    NAME = 'Tweezer'
 
     def __init__(self, difference_threshold: float = 0.005, body_threshold = 0.6):
         super(Tweezer, self).__init__("Tweezer")
@@ -241,6 +247,7 @@ class Tweezer(PatternMatcher):
 
 class Marubozu(PatternMatcher):
     CANDLES_REQUIRED = 1
+    NAME = 'Marubozu'
 
     def __init__(self):
         super(Marubozu, self).__init__("Marubozu")
